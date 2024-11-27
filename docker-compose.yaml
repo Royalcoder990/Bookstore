@@ -8,7 +8,7 @@ services:
     ports:
       - "5050:5050"
     networks:
-      - bookstore-network  
+      - bookstore-network
     environment:
       MONGO_URI: xyzValue
     depends_on:
@@ -21,9 +21,9 @@ services:
     ports:
       - "5173:5173"
     networks:
-      - bookstore-network  
+      - bookstore-network
     environment:
-      REACT_APP_API_URL: http://backend:5050 
+      REACT_APP_API_URL: http://backend:5050
 
   mongodb:
     image: mongo:latest
@@ -31,14 +31,31 @@ services:
     ports:
       - "27017:27017"
     networks:
-      - bookstore-network   
+      - bookstore-network
     volumes:
       - mongo-data:/data/db
 
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock  # Mount Docker socket for Docker-in-Docker
+    environment:
+      DOCKER_HOST: "tcp://docker:2375"  # Specify Docker host (optional)
+    privileged: true  # Enable privileged mode for Docker access inside Jenkins container
+    networks:
+      - bookstore-network
+
 networks:
-  bookstore-network:  
+  bookstore-network:
     driver: bridge
 
 volumes:
   mongo-data:
+    driver: local
+  jenkins_home:
     driver: local
